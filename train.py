@@ -24,3 +24,7 @@ if __name__ == '__main__':
     print(args.config)
     cfg = OmegaConf.load(args.config)
     data = MULData(**cfg.data)
+
+    
+
+    

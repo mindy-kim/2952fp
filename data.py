@@ -13,6 +13,7 @@ def gamma(x):
 class MULData(Dataset):
     def __init__(self, *, N, C, Nx, Ny, Nf=1, epsW=0.05):
         super().__init__()
+        C = C + 1 # for query token
         self.N, self.Nf, self.C = N, Nf, C
         self.Nx, self.Ny = Nx, Ny
         self.epsW = epsW
