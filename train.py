@@ -24,7 +24,3 @@ if __name__ == '__main__':
     print(args.config)
     cfg = OmegaConf.load(args.config)
     data = MULData(**cfg.data)
-    xs, ys, weights = data.sample_df(4)
-    print(xs.shape)
-    print(ys.shape)
-    print(weights.shape)

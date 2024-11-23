@@ -6,3 +6,5 @@ data:
   Ny: 1
   Nf: 2
   epsW: 0.05
+train:
+  expreriment: "complete"
