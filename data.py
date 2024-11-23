@@ -11,7 +11,7 @@ def gamma(x):
     return math.exp(torch.lgamma())
 
 class MULData(Dataset):
-    def __init__(self, N, C, Nx, Ny, Nf=1, epsW=0.05):
+    def __init__(self, *, N, C, Nx, Ny, Nf=1, epsW=0.05):
         super().__init__()
         self.N, self.Nf, self.C = N, Nf, C
         self.Nx, self.Ny = Nx, Ny
@@ -76,11 +76,11 @@ class MULData(Dataset):
         return xs, ys, weights
 
 
-if __name__ == '__main__':
-    data = MULData(10000, 12, 20, 10, epsW=13.84)
-    start = time.perf_counter()
-    xs, ys, weights = data.sample_dr(10000)
-    end = time.perf_counter()
-    print(end - start)
-    print(xs.size(), ys.size(), weights.size())
+# if __name__ == '__main__':
+#     data = MULData(10000, 12, 20, 10, epsW=13.84)
+#     start = time.perf_counter()
+#     xs, ys, weights = data.sample_dr(10000)
+#     end = time.perf_counter()
+#     print(end - start)
+#     print(xs.size(), ys.size(), weights.size())
         
