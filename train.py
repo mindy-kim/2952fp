@@ -42,11 +42,10 @@ if __name__ == '__main__':
     args = get_parser()
     now = datetime.datetime.now().strftime("%Y-%m-%dT%H-%M-%S")
 
-    cfg = OmegaConf.load(args.config)
+    cfg = OmegaConf.load('/Users/pracchomuna-mcquay/Documents/BrownCS/CS2952Q/2952fp/configs/train_complete_projout.yaml')
     data = MULData(**cfg.data)
     
-    cfg_fname = os.path.splitext(os.path.split(args.config)[-1])[0]
-    print(os.path.split(args.config[0])[-1])
+    cfg_fname = os.path.splitext(os.path.split('/Users/pracchomuna-mcquay/Documents/BrownCS/CS2952Q/2952fp/configs/train_complete_projout.yaml')[-1])[0]
     nowname = now + "_" + cfg_fname
     logdir = os.path.join(args.logdir, nowname)
     os.makedirs(logdir, exist_ok=True)
