@@ -66,7 +66,6 @@ if __name__ == '__main__':
         
         trainer = pl.Trainer(
             logger=TensorBoardLogger(save_dir=logdir),
-            max_epochs=cfg.train.epochs,
             callbacks=[
                 ModelCheckpoint(
                     dirpath=os.path.join(ckptdir, 'trainstep_checkpoints'),
