@@ -26,13 +26,13 @@ class MULData(Dataset):
         # initialize forget tasks
         self.weightsF = torch.randn((Nf, Ny, Nx))
         dim = Nx * Ny
-        self.EN = 1 / (2 ** (-1/2) * dim * factorial((dim + 1) / 2) / factorial((dim + 2) / 2)) # normalizing factor for generation
+        self.EN = 2 ** (1 / 2) * factorial((dim + 1) / 2) / factorial(dim / 2) # normalizing factor for generation
     
     def __len__(self):
         return len(self.xs)
     
     def __getitem__(self, idx):
-        return self.xs, self.ys, self.weights
+        return self.xs[idx], self.ys[idx], self.weights[idx]
     
     def sample_df(self, N):
         """

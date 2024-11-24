@@ -7,7 +7,7 @@ model:
     dim_y: 1
     dropout: 0.1
     nhead: 4
-    proj_out: False
+    proj_out: True
 data:
   N: 10000
   C: 10
