@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 num_samples = 10000
-dimensions = 5
+dimensions = 10
 vectors = np.random.randn(num_samples, dimensions)
 
 norms = np.linalg.norm(vectors, axis=1)

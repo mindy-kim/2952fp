@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+from typing import Callable, Union
 
 class LinearCustom(nn.Module):
     def __init__(self, in_features, out_features):

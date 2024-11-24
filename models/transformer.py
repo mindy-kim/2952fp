@@ -3,7 +3,6 @@ import torch.nn as nn
 import torch.nn.functional as F
 import pytorch_lightning as pl
 
-from typing import Callable, Union
 from models.attention import MultiHeadAttention
 from models.utils import LinearCustom, PositionwiseFeedForward, SublayerConnection
 
@@ -22,6 +21,8 @@ class Transformer(pl.LightningModule):
         
         dmodel = dim_x + dim_y
         self.d_model, self.N_x, self.N_y = dmodel, dim_x, dim_y
+        self.num_layers = num_layers
+
         if not dim_ff:
             dim_ff = 4 * dmodel
         self.proj_out = proj_out
@@ -36,6 +37,7 @@ class Transformer(pl.LightningModule):
     def forward(self, x):
         for layer in self.layers:
             x = layer(x)
+            x = torch.clamp(x, min=-10.0, max=10.0) if self.num_layers > 2 else x
 
         return x
 
@@ -54,16 +56,16 @@ class Transformer(pl.LightningModule):
             y_pred = -pred[:, -1, -self.N_y:]
         y_true = ys[:, -1, :]
 
-        loss = F.mse_loss(y_pred, y_true)
+        loss = F.mse_loss(y_pred, y_true, reduction='sum') / y_pred.size(0)
         self.log("train_loss", loss, on_step=False, on_epoch=True, prog_bar=True)
         
         return loss
     
-    def parameters(self):
-        for layer in self.layers:
-            yield from layer.parameters()
+    # def parameters(self):
+    #     for layer in self.layers:
+    #         yield from layer.parameters()
 
-        yield from self.out.parameters()
+    #     yield from self.out.parameters()
 
     def configure_optimizers(self):
         optimizer = torch.optim.Adam(self.parameters(), lr=self.learning_rate)

@@ -1,0 +1,23 @@
+model:
+  target: models.transformer.Transformer
+  params:
+    num_layers: 5
+    mlp_layers: []
+    dim_x: 10
+    dim_y: 1
+    dropout: 0.1
+    nhead: 1
+    proj_out: False
+data:
+  target: data.MULData
+  params:
+    C: 40
+    Nf: 2
+    epsW: 1.5 # this is kinda valid for this, will have to experiment for higher dimension
+train:
+  experiment: "complete"
+  batch_sz: 2048
+  lr: 0.0005
+  lightning_cfg:
+    max_epochs: 400
+    limit_train_batches: 100

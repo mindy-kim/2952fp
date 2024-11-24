@@ -42,10 +42,12 @@ if __name__ == '__main__':
     args = get_parser()
     now = datetime.datetime.now().strftime("%Y-%m-%dT%H-%M-%S")
 
-    cfg = OmegaConf.load('/Users/pracchomuna-mcquay/Documents/BrownCS/CS2952Q/2952fp/configs/train_complete.yaml')
-    data = MULData(**cfg.data)
+    cfg = OmegaConf.load(args.config)
+    cfg.data.params['Nx'], cfg.data.params['Ny'] = cfg.model.params.dim_x, cfg.model.params.dim_y
+
+    data = instantiate_from_config(cfg.data)
     
-    cfg_fname = os.path.splitext('/Users/pracchomuna-mcquay/Documents/BrownCS/CS2952Q/2952fp/configs/train_complete.yaml'[-1])[0]
+    cfg_fname = os.path.splitext(args.config[-1])[0]
     print(os.path.split(args.config[0])[-1])
     nowname = now + "_" + cfg_fname
     logdir = os.path.join(args.logdir, nowname)
@@ -59,7 +61,8 @@ if __name__ == '__main__':
     if cfg.train:
         bs, base_lr = cfg.train.batch_sz, cfg.train.lr
         model.learning_rate = base_lr
-        dataloader = DataLoader(data, batch_size=bs, shuffle=True)
+        dataloader = DataLoader(data, batch_size=cfg.train.batch_sz)
+        lightning_cfg = cfg.train.lightning_cfg if 'lightning_cfg' in cfg.train else {}
         
         trainer = pl.Trainer(
             logger=TensorBoardLogger(save_dir=logdir),
@@ -71,7 +74,8 @@ if __name__ == '__main__':
                     every_n_epochs=5,
                     save_weights_only=True
                 )
-            ]
+            ],
+            **lightning_cfg
         )
 
         trainer.fit(model, train_dataloaders=dataloader)
