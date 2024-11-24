@@ -2,6 +2,8 @@ import torch
 import torch.nn as nn
 from typing import Callable, Union
 
+from models.utils import LinearCustom
+
 class MultiHeadAttention(nn.Module):
     def __init__(self, d_model, n_head, d_key=None, d_val=None):
         super(MultiHeadAttention, self).__init__()
@@ -11,10 +13,10 @@ class MultiHeadAttention(nn.Module):
             d_val = d_model
 
         self.n_head = n_head
-        self.w_q = nn.Linear(d_model, d_model * n_head)
-        self.w_k = nn.Linear(d_model, d_model * n_head)
-        self.w_v = nn.Linear(d_model, d_model * n_head)
-        self.w_p = nn.Linear(d_model * n_head, d_model)
+        self.w_q = LinearCustom(d_model, d_model * n_head)
+        self.w_k = LinearCustom(d_model, d_model * n_head)
+        self.w_v = LinearCustom(d_model, d_model * n_head)
+        self.w_p = LinearCustom(d_model * n_head, d_model)
 
     def forward(self, q, k, v, is_concat=False):
         Bq, Tq, Dq = q.size()

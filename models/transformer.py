@@ -5,6 +5,7 @@ import pytorch_lightning as pl
 
 from typing import Callable, Union
 from models.attention import MultiHeadAttention
+from models.utils import LinearCustom, PositionwiseFeedForward, SublayerConnection
 
 class Transformer(pl.LightningModule):
     def __init__(self, *, 
@@ -30,13 +31,12 @@ class Transformer(pl.LightningModule):
             use_mlp = True if i in mlp_layers else False
             self.layers.append(TransformerBlock(dmodel, dropout, nhead, dim_ff, use_mlp=use_mlp))
 
-        self.out = nn.Linear(dmodel, dmodel) if proj_out else nn.Identity()
+        self.out = LinearCustom(dim_y, dim_y) if proj_out else nn.Identity()
 
     def forward(self, x):
         for layer in self.layers:
             x = layer(x)
 
-        x = self.out(x)
         return x
 
     def training_step(self, batch, batch_idx):
@@ -89,45 +89,3 @@ class TransformerBlock(nn.Module):
         if self.use_mlp:
             x = self.sublayer2(x, self.feed_forward)
         return x
-
-class PositionwiseFeedForward(nn.Module):
-    ''' Implements the two-layer feedforward neural network used in the transformer.'''
-    def __init__(self, d_model: int, d_ff: int, dropout: float = 0.1):
-        """
-        Initializes a PositionwiseFeedForward module
-        """
-        super(PositionwiseFeedForward, self).__init__()
-        self.w_1 = nn.Linear(d_model, d_ff)
-        self.w_2 = nn.Linear(d_ff, d_model)
-        self.dropout = nn.Dropout(dropout)
-
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        """
-        Forward pass of the model. Normalizes the input, applies the sublayer,
-        performs a dropout, and then performs a residual connection.
-        """
-        return self.w_2(self.dropout(self.w_1(x).relu()))
-
-class SublayerConnection(nn.Module):
-    '''Applies a residual connection followed by a layer norm to any sublayer'''
-    def __init__(self, size: int, dropout: float):
-        """
-        Initializes a SublayerConnection module
-
-        Parameters
-        ----------
-        size : int
-            size of the expected input to the module
-        dropout : float
-            dropout value to be used after the sublayer
-        """
-        super(SublayerConnection, self).__init__()
-        self.norm = nn.LayerNorm(size)
-        self.dropout = nn.Dropout(dropout)
-
-    def forward(self, x: torch.Tensor, sublayer: Union[nn.Module, Callable]) -> torch.Tensor:
-        """
-        Forward pass of the model. Normalizes the input, applies the sublayer,
-        performs a dropout, and then performs a residual connection.
-        """
-        return x + self.dropout(sublayer(self.norm(x)))

@@ -3,20 +3,20 @@ model:
   params:
     num_layers: 5
     mlp_layers: [0]
-    dim_x: 5
+    dim_x: 10
     dim_y: 1
     dropout: 0.1
-    nhead: 4
+    nhead: 1
     proj_out: False
 data:
   N: 10000
-  C: 10
-  Nx: 5
+  C: 40
+  Nx: 10
   Ny: 1
   Nf: 2
   epsW: 1.5 # this is kinda valid for this, will have to experiment for higher dimension
 train:
   experiment: "complete"
-  batch_sz: 32
+  batch_sz: 64
   lr: 0.0005
   epochs: 100
