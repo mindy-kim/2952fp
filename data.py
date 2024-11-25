@@ -10,6 +10,36 @@ from scipy.special import factorial
 def gamma(x):
     return math.exp(torch.lgamma())
 
+class FullData(Dataset):
+    def __init__(self, *, C, Nx, Ny, N=None):
+        super().__init__()
+        C = C + 1 # for query token
+        self.N, self.C = N, C
+        self.Nx, self.Ny = Nx, Ny
+
+        # full dataset
+        if N:
+            self.weights = torch.randn((N, Ny, Nx))
+            self.xs = torch.rand((N, C, Nx)) * 2.0 - 1.0
+            self.ys = torch.einsum('ijk,ick->icj', self.weights, self.xs)
+
+        # initialize forget tasks
+
+    def __len__(self):
+        return self.N if self.N else int(1e8)
+    
+    def __getitem__(self, idx):
+        out_dict = {}
+        if self.N:
+            out_dict['xs'], out_dict['ys'], out_dict['weights'] = self.xs[idx], self.ys[idx], self.weights[idx]
+        else:
+            weights = torch.randn((self.Ny, self.Nx))
+            xs = torch.rand((self.C, self.Nx)) * 2.0 - 1.0
+            ys = torch.einsum('jk,ck->cj', weights, xs)
+            out_dict['xs'], out_dict['ys'], out_dict['weights'] = xs, ys, weights
+            
+        return out_dict
+
 class MULData(Dataset):
     def __init__(self, *, C, Nx, Ny, N=None, Nf=1, epsW=0.05):
         super().__init__()
@@ -27,19 +57,23 @@ class MULData(Dataset):
         # initialize forget tasks
         self.weightsF = torch.randn((Nf, Ny, Nx))
         dim = Nx * Ny
-        self.EN = 2 ** (1 / 2) * factorial((dim + 1) / 2) / factorial(dim / 2) # normalizing factor for generation
-    
+        self.EN = 1 / (2 ** (1 / 2) * factorial((dim + 1) / 2) / factorial(dim / 2)) # normalizing factor for generation
+
     def __len__(self):
         return self.N if self.N else int(1e8)
     
     def __getitem__(self, idx):
+        out_dict = {}
         if self.N:
-            return self.xs[idx], self.ys[idx], self.weights[idx]
+            out_dict['xs'], out_dict['ys'], out_dict['weights'] = self.xs[idx], self.ys[idx], self.weights[idx]
         else:
-            weights = torch.randn((self.Ny, self.Nx))
-            xs = torch.rand((self.C, self.Nx)) * 2.0 - 1.0
-            ys = torch.einsum('jk,ck->cj', weights, xs)
-            return xs, ys, weights
+            xs, ys, weights = self.sample_dr(1) # retain 
+            out_dict['xs'], out_dict['ys'], out_dict['weights'] = xs[0], ys[0], weights[0]
+
+            xsF, ysF, weightsF = self.sample_df(1) # forget
+            out_dict['xsF'], out_dict['ysF'], out_dict['weightsF'] = xsF[0], ysF[0], weightsF[0]
+            
+        return out_dict
 
     
     def sample_df(self, N):
@@ -81,14 +115,13 @@ class MULData(Dataset):
             
         xs = torch.rand((N, self.C, self.Nx)) * 2.0 - 1.0
         ys = torch.einsum('ijk,ick->icj', weights, xs)
-
         return xs, ys, weights
 
 
 # if __name__ == '__main__':
-#     data = MULData(10000, 12, 20, 10, epsW=13.84)
+#     data = MULData(N=10000, Nx=10, Ny=1, C=10, epsW=13.84)
 #     start = time.perf_counter()
-#     xs, ys, weights = data.sample_dr(10000)
+#     xs, ys, weights = data.sample_df(10000)
 #     end = time.perf_counter()
 #     print(end - start)
 #     print(xs.size(), ys.size(), weights.size())

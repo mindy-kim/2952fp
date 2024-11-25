@@ -10,6 +10,7 @@ import pytorch_lightning as pl
 from pytorch_lightning.callbacks import ModelCheckpoint
 from pytorch_lightning.loggers import TensorBoardLogger
 
+from models.transformer import Transformer
 
 from data import MULData
 
@@ -55,7 +56,12 @@ if __name__ == '__main__':
     ckptdir = os.path.join(logdir, "checkpoints")
     os.makedirs(ckptdir, exist_ok=True)
 
-    model = instantiate_from_config(cfg.model)
+    model : Transformer = instantiate_from_config(cfg.model)
+    if 'ckpt_path' in cfg.model:
+        model.load_from_checkpoint(cfg.model.ckpt_path, **cfg.model.params)
+        if cfg.train and cfg.train.experiment == "unlearning":
+            model.set_lambda(cfg.train.experiment.params.lambda1, 
+                             cfg.train.experiment.params.lambda2)
 
     if cfg.train:
         bs, base_lr = cfg.train.batch_sz, cfg.train.lr
