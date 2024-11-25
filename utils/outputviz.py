@@ -39,15 +39,13 @@ def plot_metrics(data_by_task, output_file=None):
     
     # Define professional color palette and line styles
     colors = cycle(["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b"])
-    line_styles = cycle(["-", "--", ":"])
-    markers = cycle(["o", "s", "d", "v", "^", "<", ">"])
+    line_styles = cycle(["--", "-"])
     
     for task_id, task_data in data_by_task.items():
         color = next(colors)
         for metric, values in task_data.items():
             steps, metrics_values = zip(*values)
             linestyle = next(line_styles)
-            marker = next(markers)
             
             label = f"{task_id} - {metric.replace('loss/', '').replace('_', ' ').capitalize()}"
             plt.plot(
@@ -56,14 +54,12 @@ def plot_metrics(data_by_task, output_file=None):
                 label=label,
                 color=color,
                 linestyle=linestyle,
-                marker=marker,
-                markersize=6,
                 linewidth=2,
             )
     
     plt.xlabel("Steps", fontsize=14)
     plt.ylabel("Loss", fontsize=14)
-    plt.title("Training Metrics Across Tasks", fontsize=16)
+    plt.title("LSA-MLP Retain/Forget Loss", fontsize=16)
     plt.legend(fontsize=12, loc="upper right")
     plt.grid(True, linestyle='--', alpha=0.7)
     plt.tight_layout()
