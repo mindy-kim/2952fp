@@ -73,8 +73,8 @@ class Transformer(pl.LightningModule):
             y_predF = self.read_y(predF)
             y_trueF = torch.zeros_like(y_predF)
             lossF = F.mse_loss(y_predF, y_trueF)
-            self.log("retain_loss", loss, on_step=False, on_epoch=True, prog_bar=True)
-            self.log("forget_loss", lossF, on_step=False, on_epoch=True, prog_bar=True)
+            self.log("loss/retain_loss", loss, on_step=False, on_epoch=True, prog_bar=True)
+            self.log("loss/forget_loss", lossF, on_step=False, on_epoch=True, prog_bar=True)
             loss = self.lam1 * loss + self.lam2 * lossF
             
         self.log("train_loss", loss, on_step=False, on_epoch=True, prog_bar=True)
