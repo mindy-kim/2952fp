@@ -118,11 +118,20 @@ class MULData(Dataset):
         return xs, ys, weights
 
 
-# if __name__ == '__main__':
-#     data = MULData(N=10000, Nx=10, Ny=1, C=10, epsW=13.84)
-#     start = time.perf_counter()
-#     xs, ys, weights = data.sample_df(10000)
-#     end = time.perf_counter()
-#     print(end - start)
-#     print(xs.size(), ys.size(), weights.size())
+if __name__ == '__main__':
+    # start = time.perf_counter()
+    # xs, ys, weights = data.sample_df(10000)
+    # end = time.perf_counter()
+    # print(end - start)
+    # print(xs.size(), ys.size(), weights.size())
+    NUM_TRIALS = 1000
+    tot = 0
+    for i in range(NUM_TRIALS):
+        data = MULData(N=10000, Nx=10, Ny=1, C=10, epsW=2.5)
+        wgts = data.weights
+        forgetW = data.weightsF[0]
+        mask = F.norm(wgts-forgetW, dim=(-2,-1), keepdim=True) < data.epsW
+        tot += torch.mean(mask.to(dtype=torch.float)).item()
+    print(tot / NUM_TRIALS)
+
         
