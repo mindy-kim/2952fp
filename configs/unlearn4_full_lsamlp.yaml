@@ -1,0 +1,28 @@
+model:
+  target: models.transformer.Transformer
+  ckpt_path: './logs/trained_lsamlp/checkpoints/trainstep_checkpoints/epoch=224-step=22500.ckpt'
+  params:
+    num_layers: 5
+    mlp_layers: [0,1,2,3,4]
+    dim_x: 10
+    dim_y: 1
+    dropout: 0.1
+    nhead: 1
+    proj_out: False
+data:
+  target: data.MULData
+  params:
+    C: 40
+    Nf: 4
+    epsW: 2.5 # this is kinda valid for this, will have to experiment for higher dimension
+train:
+  experiment:
+    name: "unlearning"
+    params:
+      lambda1: 0.5
+      lambda2: 0.5
+  batch_sz: 256
+  lr: 0.0005
+  lightning_cfg:
+    max_epochs: 400
+    limit_train_batches: 100
