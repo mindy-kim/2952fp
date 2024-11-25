@@ -48,7 +48,7 @@ if __name__ == '__main__':
 
     data = instantiate_from_config(cfg.data)
     
-    cfg_fname = os.path.splitext(args.config)[-1]
+    cfg_fname = os.path.splitext(os.path.split(args.config)[-1])[0]
     nowname = now + "_" + cfg_fname
     logdir = os.path.join(args.logdir, nowname)
     os.makedirs(logdir, exist_ok=True)
