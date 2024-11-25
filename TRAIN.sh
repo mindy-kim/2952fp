@@ -32,10 +32,8 @@
 
 module load miniconda3/23.11.0s
 source /oscar/runtime/software/external/miniconda3/23.11.0/etc/profile.d/conda.sh
-conda activate gaussian_splatting
 module load cuda/11.8.0-lpttyok
-module load opencv
-module load ffmpeg
-pip install --upgrade submodules/simple-knn
-pip install --upgrade submodules/diff-gaussian-rasterization
-python3 train.py -s data/brics-studio-pc
+python main.py -c configs/unlearn1_full_lsamlp.yaml
+python main.py -c configs/unlearn2_full_lsamlp.yaml
+python main.py -c configs/unlearn4_full_lsamlp.yaml
+python main.py -c configs/unlearn8_full_lsamlp.yaml

@@ -162,3 +162,5 @@ cython_debug/
 #.idea/
 
 .vscode/**
+sbatch_err.err
+sbatch_out.out
