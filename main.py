@@ -58,8 +58,9 @@ if __name__ == '__main__':
 
     model : Transformer = instantiate_from_config(cfg.model)
     if 'ckpt_path' in cfg.model:
-        model.load_from_checkpoint(cfg.model.ckpt_path, **cfg.model.params)
-        if cfg.train and cfg.train.experiment == "unlearning":
+        model = Transformer.load_from_checkpoint(cfg.model.ckpt_path, **cfg.model.params)
+        print(cfg.train, cfg.train.experiment)
+        if 'experiment' in  cfg.train and cfg.train.experiment.name == "unlearning":
             model.set_lambda(cfg.train.experiment.params.lambda1, 
                              cfg.train.experiment.params.lambda2)
 
