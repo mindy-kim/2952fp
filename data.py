@@ -5,7 +5,7 @@ from torch.utils.data import Dataset, DataLoader
 import time
 import math
 from scipy.special import factorial
-
+from tqdm import tqdm
 
 def gamma(x):
     return math.exp(torch.lgamma())
@@ -14,18 +14,20 @@ def empricalEps(forgetW, Nx, Ny, thresh=0.025, num_trials=1000):
     candEps = [0.1 + 0.1 * i for i in range(50)]
     closestDist = float('inf')
     chosenEps = None
-    for epsW in candEps:
+    for epsW in tqdm(candEps, desc='selecting epsW'):
         tot = 0
         for i in range(num_trials):
-            wgts = torch.randn((10000, Ny, Nx))
+            wgts = torch.randn((1000, Ny, Nx))
             mask = F.norm(wgts-forgetW, dim=(-2,-1), keepdim=True) < epsW
             tot += torch.mean(mask.to(dtype=torch.float)).item()
         tot /= num_trials
-
-        if abs(tot.item() - thresh) < closestDist:
-            closestDist = abs(tot.item() - thresh)
+        if tot > 2 * thresh:
+            break
+        if abs(tot - thresh) < closestDist:
+            closestDist = abs(tot - thresh)
             chosenEps = epsW
     
+    print(f"Selected {chosenEps}")
     return chosenEps
 
 class FullData(Dataset):
@@ -124,7 +126,7 @@ class MULData(Dataset):
         while True:
             mask = torch.zeros((N,1,1))
             for i in range(self.Nf):
-                mask = torch.logical_or(F.norm(weights-self.weightsF[i], dim=(-2,-1), keepdim=True) < self.epsW, mask)
+                mask = torch.logical_or(F.norm(weights-self.weightsF[i], dim=(-2,-1), keepdim=True) < self.epsW[i], mask)
             
             if torch.any(mask):
                 weights = torch.where(mask, torch.randn((N, self.Ny, self.Nx)), weights)
