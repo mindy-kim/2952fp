@@ -56,7 +56,7 @@ class Transformer(pl.LightningModule):
         xs, ys, weights = batch['xs'], batch['ys'], batch['weights']
         # mask y_true for query token
         mask = torch.ones_like(ys)
-        mask[:, -1, :] = -1
+        mask[:, -1, :] = 0
 
         embs = torch.cat([xs, ys * mask], dim=-1)
         pred = self.forward(embs)
@@ -71,7 +71,7 @@ class Transformer(pl.LightningModule):
             embsF = torch.cat([xsF, ysF * mask], dim=-1)
             predF = self.forward(embsF)
             y_predF = self.read_y(predF)
-            y_trueF = torch.zeros_like(y_predF)
+            y_trueF = -ysF
             lossF = F.mse_loss(y_predF, y_trueF)
             # self.logger.experiment.add_scalars("losses", {"retain_loss": loss})
             # self.logger.experiment.add_scalars("losses", {"forget_loss": lossF})
