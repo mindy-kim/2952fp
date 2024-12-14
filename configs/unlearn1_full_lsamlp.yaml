@@ -1,6 +1,6 @@
 model:
   target: models.transformer.Transformer
-  ckpt_path: './logs/trained_lsamlp/checkpoints/trainstep_checkpoints/epoch=224-step=22500.ckpt'
+  ckpt_path: './logs/trained_lsamlp/checkpoints/trainstep_checkpoints/models.ckpt'
   params:
     num_layers: 5
     mlp_layers: [0,1,2,3,4]
