@@ -43,7 +43,7 @@ class Hijack():
 
         for _ in range(self.num_steps):
             y_pred = self.forward(embs, hijacked_inds, hijacked_tokens)
-            y_true = -ys[:, -1, :]
+            y_true = torch.zeros_like(ys[:, -1, :])
 
             y_predF = self.forward(embsF, hijacked_inds, hijacked_tokens)
             y_trueF = ysF[:,-1,:]
