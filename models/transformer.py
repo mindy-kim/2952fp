@@ -81,6 +81,7 @@ class Transformer(pl.LightningModule):
                 on_epoch=True,
                 prog_bar=True,
             )
+            print(self.lam1, self.lam2)
             loss = self.lam1 * loss + self.lam2 * lossF
             
         self.log("train_loss", loss, on_step=False, on_epoch=True, prog_bar=True)
