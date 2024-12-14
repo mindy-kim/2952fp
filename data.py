@@ -10,6 +10,24 @@ from scipy.special import factorial
 def gamma(x):
     return math.exp(torch.lgamma())
 
+def empricalEps(forgetW, Nx, Ny, thresh=0.025, num_trials=1000):
+    candEps = [0.1 + 0.1 * i for i in range(50)]
+    closestDist = float('inf')
+    chosenEps = None
+    for epsW in candEps:
+        tot = 0
+        for i in range(num_trials):
+            wgts = torch.randn((10000, Ny, Nx))
+            mask = F.norm(wgts-forgetW, dim=(-2,-1), keepdim=True) < epsW
+            tot += torch.mean(mask.to(dtype=torch.float)).item()
+        tot /= num_trials
+
+        if abs(tot.item() - thresh) < closestDist:
+            closestDist = abs(tot.item() - thresh)
+            chosenEps = epsW
+    
+    return chosenEps
+
 class FullData(Dataset):
     def __init__(self, *, C, Nx, Ny, N=None):
         super().__init__()
@@ -41,12 +59,12 @@ class FullData(Dataset):
         return out_dict
 
 class MULData(Dataset):
-    def __init__(self, *, C, Nx, Ny, N=None, Nf=1, epsW=0.05):
+    def __init__(self, *, C, Nx, Ny, N=None, Nf=1, forgetThresh=0.025):
         super().__init__()
         C = C + 1 # for query token
         self.N, self.Nf, self.C = N, Nf, C
         self.Nx, self.Ny = Nx, Ny
-        self.epsW = epsW
+        self.epsW = torch.zeros(Nf)
 
         # full dataset
         if N:
@@ -56,6 +74,8 @@ class MULData(Dataset):
 
         # initialize forget tasks
         self.weightsF = torch.randn((Nf, Ny, Nx))
+        for i in range(Nf):
+            self.epsW[i] = empricalEps(self.weightsF[i], Nx, Ny, thresh=forgetThresh)
         dim = Nx * Ny
         self.EN = 1 / (2 ** (1 / 2) * factorial((dim + 1) / 2) / factorial(dim / 2)) # normalizing factor for generation
 
@@ -91,7 +111,7 @@ class MULData(Dataset):
             
             break
 
-        weights = orig_weights + self.epsW * noise
+        weights = orig_weights + self.epsW[tIdx] * noise
         xs = torch.rand((N, self.C, self.Nx)) * 2.0 - 1.0
         ys = torch.einsum('ijk,ick->icj', weights, xs)
         return xs, ys, weights

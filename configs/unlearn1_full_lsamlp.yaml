@@ -14,7 +14,6 @@ data:
   params:
     C: 40
     Nf: 1
-    epsW: 2.5 # this is kinda valid for this, will have to experiment for higher dimension
 train:
   experiment:
     name: "unlearning"
