@@ -56,7 +56,7 @@ class Transformer(pl.LightningModule):
         xs, ys, weights = batch['xs'], batch['ys'], batch['weights']
         # mask y_true for query token
         mask = torch.ones_like(ys)
-        mask[:, -1, :] = 0
+        mask[:, -1, :] = -1
 
         embs = torch.cat([xs, ys * mask], dim=-1)
         pred = self.forward(embs)
