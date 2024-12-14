@@ -1,17 +1,20 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-num_samples = 10000
-dimensions = 10
-vectors = np.random.randn(num_samples, dimensions)
+plt.figure(figsize=(10, 7))
 
-norms = np.linalg.norm(vectors, axis=1)
+for dimensions in [10, 100, 1000]:
+    num_samples = 10000
+    vectors = np.random.randn(num_samples, dimensions)
 
-plt.figure(figsize=(8, 6))
-plt.hist(norms, bins=50, density=True, alpha=0.7, edgecolor='black')
+    norms = np.linalg.norm(vectors, axis=1)
+
+    plt.hist(norms, bins=50, density=True, alpha=0.6, label=f'{dimensions} Dimensions', edgecolor='black')
 
 plt.xlabel('Norm', fontsize=14)
 plt.ylabel('Probability Density', fontsize=14)
-plt.title('PDF of 5-Dimensional Vector Norms', fontsize=16)
+plt.title('PDF of Vector Norms for Different Dimensions', fontsize=16)
+plt.legend(fontsize=12)
 plt.grid(alpha=0.3)
+
 plt.show()
