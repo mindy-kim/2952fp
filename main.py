@@ -78,7 +78,7 @@ if __name__ == '__main__':
             model.set_lambda(cfg.train.experiment.params.lambda1, 
                              cfg.train.experiment.params.lambda2)
 
-    if cfg.train:
+    if "train" in cfg:
         bs, base_lr = cfg.train.batch_sz, cfg.train.lr
         model.learning_rate = base_lr
         dataloader = DataLoader(data, batch_size=cfg.train.batch_sz)
@@ -99,7 +99,7 @@ if __name__ == '__main__':
 
         trainer.fit(model, train_dataloaders=dataloader)
 
-    if cfg.hijack:
+    if "hijack" in cfg:
         # train input to hijack model and produce bad (what we want unlearned) output
         # train model to unlearn bad tasks
         # see how model performs on hijacked data?
