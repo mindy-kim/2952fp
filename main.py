@@ -91,7 +91,7 @@ if __name__ == '__main__':
             trainer.fit(model, train_dataloaders=dataloader)
         except Exception as e:
             print(f"Error during training: {e}")
-        
+        dataloader = DataLoader(data, batch_size=cfg.train.batch_sz, num_workers = 8)
         print('hijacking')
 
         if "hijack" in cfg:
