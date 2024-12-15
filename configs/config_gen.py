@@ -29,4 +29,4 @@ if __name__ == '__main__':
         cfg_copy = OmegaConf.create(cfg)
         cfg_copy.train.experiment.params.lambda1 = lr
         cfg_copy.train.experiment.params.lambda2 = lf
-        OmegaConf.save(cfg_copy, f"{os.path.basename(args.config)}{int(lr*10)}.yaml")    
+        OmegaConf.save(cfg_copy, f"{os.path.splitext(os.path.basename(args.config))[0]}{int(lr*10)}.yaml")    
