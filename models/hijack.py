@@ -10,7 +10,6 @@ class Hijack(nn.Module):
         self.num_steps = num_steps
         self.batch_sz = batch_sz
         self.lr = lr
-        print('wtf')
         # self.logger = logger
 
     def forward(self, x, inds, tokens):
@@ -19,19 +18,20 @@ class Hijack(nn.Module):
         out = self.model.read_y(out)
         return out
     
-    def train(self, model, dataloader):
+    def train(self, model, dataset):
         total_loss = 0
         self.model = model
         print('start training')
 
-        for batch_idx, batch in enumerate(dataloader):
-            print('here?')
-            total_loss += self.training_steps(batch)
+        for _ in range(self.num_steps):
+            out_dict = {}
+            out_dict['xs'], out_dict['ys'], out_dict['weights'] = self.sample_dr(self.batch_sz)
+            out_dict['xsF'], out_dict['ysF'], out_dict['weightsF'] = dataset.sample_df(self.batch_sz)
+            total_loss += self.training_steps(out_dict)
 
             # self.logger.log("hijack_avg_loss", total_loss / (batch_idx + 1), on_step=False, on_epoch=True, prog_bar=True)
 
-        print(total_loss / len(dataloader))
-        return total_loss / len(dataloader)
+        return total_loss / (self.batch_sz * self.num_steps)
     
     def training_steps(self, batch):
         print('here')

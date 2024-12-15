@@ -87,12 +87,7 @@ if __name__ == '__main__':
             **lightning_cfg
         )
         
-        try:
-            trainer.fit(model, train_dataloaders=dataloader)
-        except Exception as e:
-            print(f"Error during training: {e}")
-        dataloader = DataLoader(data, batch_size=cfg.train.batch_sz, num_workers = 8)
-        print('hijacking')
+        trainer.fit(model, train_dataloaders=data)
 
         if "hijack" in cfg:
             hijack_model = Hijack(cfg.hijack.steps, cfg.hijack.batch_sz, base_lr)
