@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import numpy as np
 
 class Hijack():
     def __init__(self, model, num_steps, batch_sz, lr):
@@ -9,21 +10,24 @@ class Hijack():
         self.num_steps = num_steps
         self.batch_sz = batch_sz
         self.lr = lr
+        # self.logger = logger
 
     def forward(self, x, inds, tokens):
         x[:, inds, 1] = tokens
         out = self.model(x)
-        out = self.read_y(out)
+        out = self.model.read_y(out)
         return out
     
     def train(self, dataloader):
         total_loss = 0
+        print('start training')
 
-        for batch_idx, batch in range(dataloader):
+        for batch_idx, batch in enumerate(dataloader):
             total_loss += self.training_steps(batch)
 
-            self.model.log("hijack_avg_loss", total_loss / (batch_idx + 1), on_step=False, on_epoch=True, prog_bar=True)
+            # self.logger.log("hijack_avg_loss", total_loss / (batch_idx + 1), on_step=False, on_epoch=True, prog_bar=True)
 
+        print(total_loss / len(dataloader))
         return total_loss / len(dataloader)
     
     def training_steps(self, batch):
@@ -37,11 +41,13 @@ class Hijack():
         embs = torch.cat([xs, ys * mask], dim=-1)
         embsF = torch.cat([xsF, ysF * mask], dim=-1)
 
-        hijacked_inds = torch.randint(low=0, high=embs.shape[1] - 1, size=(embs.shape[0],))
-        hijacked_tokens = nn.Parameter(torch.rand(embs.shape[0]))
-        optimizer = torch.optim.Adam(hijacked_tokens, lr=self.lr)
+        hijacked_inds = np.random.randint(low=0, high=embs.shape[1] - 1, size=(embs.shape[0],))
+        hijacked_tokens = torch.tensor(np.random.rand(embs.shape[0]), dtype=torch.float32)
+        hijacked_tokens.requires_grad = True
+        optimizer = torch.optim.Adam([hijacked_tokens], lr=self.lr)
 
-        for _ in range(self.num_steps):
+        for step in range(self.num_steps):
+            print(step)
             y_pred = self.forward(embs, hijacked_inds, hijacked_tokens)
             y_true = torch.zeros_like(ys[:, -1, :])
 
@@ -50,18 +56,21 @@ class Hijack():
 
             loss = F.mse_loss(y_pred, y_true)
             lossF = F.mse_loss(y_predF, y_trueF)
-            train_loss = self.lam1 * loss + self.lam2 * lossF
+            train_loss = self.model.lam1 * loss + self.model.lam2 * lossF
 
-            self.model.log_dict(
-                {"hijack_loss/retain_loss": loss, "hijack_loss/forget_loss": lossF},
-                on_step=False,
-                on_epoch=True,
-                prog_bar=True,
-            )
-            self.model.log("hijack_train_loss", train_loss, on_step=False, on_epoch=True, prog_bar=True)
+            metrics = {
+                "hijack_loss/retain_loss": loss, 
+                "hijack_loss/forget_loss": lossF,
+                "hijack_train_loss": train_loss
+            }
+
+            # self.logger.log_metrics(metrics, step=step)
 
             optimizer.zero_grad()
-            train_loss.backward()
+            train_loss.backward(retain_graph=True)
             optimizer.step()
+
+        # hijacked_tokens.requires_grad_(False)
+        print(metrics)
 
         return train_loss

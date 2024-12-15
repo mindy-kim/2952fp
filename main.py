@@ -72,9 +72,10 @@ if __name__ == '__main__':
         model.learning_rate = base_lr
         dataloader = DataLoader(data, batch_size=cfg.train.batch_sz)
         lightning_cfg = cfg.train.lightning_cfg if 'lightning_cfg' in cfg.train else {}
+        logger = TensorBoardLogger(save_dir=logdir)
         
         trainer = pl.Trainer(
-            logger=TensorBoardLogger(save_dir=logdir),
+            logger=logger,
             callbacks=[
                 ModelCheckpoint(
                     dirpath=os.path.join(ckptdir, 'trainstep_checkpoints'),
@@ -90,6 +91,7 @@ if __name__ == '__main__':
         
         if "hijack" in cfg:
             hijack_model = Hijack(model, cfg.hijack.steps, cfg.hijack.batch_sz, base_lr)
+            print('hijack')
             hijack_model.train(dataloader)
 
 
