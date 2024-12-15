@@ -33,7 +33,31 @@
 module load miniconda3/23.11.0s
 source /oscar/runtime/software/external/miniconda3/23.11.0/etc/profile.d/conda.sh
 module load cuda/11.8.0-lpttyok
-python main.py -c configs/unlearn1_full_lsamlp.yaml
-python main.py -c configs/unlearn2_full_lsamlp.yaml
-python main.py -c configs/unlearn4_full_lsamlp.yaml
-python main.py -c configs/unlearn8_full_lsamlp.yaml
+python main.py -c configs/unlearn1_full_lsamlp0.yaml
+python main.py -c configs/unlearn1_full_lsamlp2.yaml
+python main.py -c configs/unlearn1_full_lsamlp4.yaml
+python main.py -c configs/unlearn1_full_lsamlp6.yaml
+python main.py -c configs/unlearn1_full_lsamlp8.yaml
+python main.py -c configs/unlearn1_full_lsamlp10.yaml
+
+python main.py -c configs/unlearn2_full_lsamlp0.yaml
+python main.py -c configs/unlearn2_full_lsamlp2.yaml
+python main.py -c configs/unlearn2_full_lsamlp4.yaml
+python main.py -c configs/unlearn2_full_lsamlp6.yaml
+python main.py -c configs/unlearn2_full_lsamlp8.yaml
+python main.py -c configs/unlearn2_full_lsamlp10.yaml
+
+python main.py -c configs/unlearn4_full_lsamlp0.yaml
+python main.py -c configs/unlearn4_full_lsamlp2.yaml
+python main.py -c configs/unlearn4_full_lsamlp4.yaml
+python main.py -c configs/unlearn4_full_lsamlp6.yaml
+python main.py -c configs/unlearn4_full_lsamlp8.yaml
+python main.py -c configs/unlearn4_full_lsamlp10.yaml
+
+python main.py -c configs/unlearn8_full_lsamlp0.yaml
+python main.py -c configs/unlearn8_full_lsamlp2.yaml
+python main.py -c configs/unlearn8_full_lsamlp4.yaml
+python main.py -c configs/unlearn8_full_lsamlp6.yaml
+python main.py -c configs/unlearn8_full_lsamlp8.yaml
+python main.py -c configs/unlearn8_full_lsamlp10.yaml
+
