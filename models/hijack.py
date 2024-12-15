@@ -25,7 +25,7 @@ class Hijack(nn.Module):
 
         for _ in range(self.num_steps):
             out_dict = {}
-            out_dict['xs'], out_dict['ys'], out_dict['weights'] = self.sample_dr(self.batch_sz)
+            out_dict['xs'], out_dict['ys'], out_dict['weights'] = dataset.sample_dr(self.batch_sz)
             out_dict['xsF'], out_dict['ysF'], out_dict['weightsF'] = dataset.sample_df(self.batch_sz)
             total_loss += self.training_steps(out_dict)
 
