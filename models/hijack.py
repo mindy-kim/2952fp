@@ -33,6 +33,7 @@ class Hijack(nn.Module):
         return total_loss / len(dataloader)
     
     def training_steps(self, batch):
+        print('here')
         xs, ys, weights = batch['xs'], batch['ys'], batch['weights']
         xsF, ysF, weightsF = batch['xsF'], batch['ysF'], batch['weightsF']
 
