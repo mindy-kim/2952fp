@@ -26,6 +26,7 @@ train:
     max_epochs: 1
     limit_train_batches: 100
 hijack:
-  steps: 5
+  lr: 0.001
+  steps: 100
   batch_sz: 256
   num_batches: 10

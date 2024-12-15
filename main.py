@@ -57,9 +57,6 @@ if __name__ == '__main__':
     ckptdir = os.path.join(logdir, "checkpoints")
     os.makedirs(ckptdir, exist_ok=True)
 
-    inputdir = os.path.join(logdir, "inputs")
-    os.makedirs(inputdir, exist_ok=True)
-
     model : Transformer = instantiate_from_config(cfg.model)
     if 'ckpt_path' in cfg.model:
         model = Transformer.load_from_checkpoint(cfg.model.ckpt_path, **cfg.model.params)
@@ -74,8 +71,20 @@ if __name__ == '__main__':
         lightning_cfg = cfg.train.lightning_cfg if 'lightning_cfg' in cfg.train else {}
         logger = TensorBoardLogger(save_dir=logdir)
         
+        # trainer = pl.Trainer(
+        #     callbacks=[
+        #         logger=logger
+        #         ModelCheckpoint(
+        #             dirpath=os.path.join(ckptdir, 'trainstep_checkpoints'),
+        #             verbose=True,
+        #             every_n_epochs=5,
+        #             save_weights_only=True
+        #         )
+        #     ],
+        #     **lightning_cfg
+        # )
+
         trainer = pl.Trainer(
-            logger=logger,
             callbacks=[
                 ModelCheckpoint(
                     dirpath=os.path.join(ckptdir, 'trainstep_checkpoints'),
@@ -90,7 +99,7 @@ if __name__ == '__main__':
         trainer.fit(model, train_dataloaders=dataloader)
 
         if "hijack" in cfg:
-            hijack_model = Hijack(cfg.hijack.steps, cfg.hijack.batch_sz, cfg.hijack.num_batches, base_lr)
+            hijack_model = Hijack(cfg.hijack.steps, cfg.hijack.batch_sz, cfg.hijack.num_batches, cfg.hijack.lr, logger)
             print('hijack')
             hijack_model.train(model, data)
 

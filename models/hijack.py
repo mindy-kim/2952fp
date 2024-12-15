@@ -4,15 +4,15 @@ import torch.nn.functional as F
 import numpy as np
 
 class Hijack(nn.Module):
-    def __init__(self, num_steps, batch_sz, num_batches, lr):
+    def __init__(self, num_steps, batch_sz, num_batches, lr, logger):
         super().__init__()
         self.model = None
         self.num_batches = num_batches
         self.num_steps = num_steps
         self.batch_sz = batch_sz
         self.lr = lr
-        # self.logger = logger
-
+        self.logger = logger
+        
     def forward(self, x, inds, tokens):
         x[:, inds, 1] = tokens
         out = self.model(x)
@@ -22,20 +22,19 @@ class Hijack(nn.Module):
     def train(self, model, dataset):
         total_loss = 0
         self.model = model
-        print('start training')
 
         for _ in range(self.num_steps):
             out_dict = {}
             out_dict['xs'], out_dict['ys'], out_dict['weights'] = dataset.sample_dr(self.batch_sz)
             out_dict['xsF'], out_dict['ysF'], out_dict['weightsF'] = dataset.sample_df(self.batch_sz)
             total_loss += self.training_steps(out_dict)
+            break
 
             # self.logger.log("hijack_avg_loss", total_loss / (batch_idx + 1), on_step=False, on_epoch=True, prog_bar=True)
 
         return total_loss / (self.batch_sz * self.num_steps)
     
     def training_steps(self, batch):
-        print('here')
         xs, ys, weights = batch['xs'], batch['ys'], batch['weights']
         xsF, ysF, weightsF = batch['xsF'], batch['ysF'], batch['weightsF']
 
@@ -52,7 +51,6 @@ class Hijack(nn.Module):
         optimizer = torch.optim.Adam([hijacked_tokens], lr=self.lr)
 
         for step in range(self.num_steps):
-            print(step)
             y_pred = self.forward(embs, hijacked_inds, hijacked_tokens)
             y_true = torch.zeros_like(ys[:, -1, :])
 
@@ -64,18 +62,16 @@ class Hijack(nn.Module):
             train_loss = self.model.lam1 * loss + self.model.lam2 * lossF
 
             metrics = {
-                "hijack_loss/retain_loss": loss, 
-                "hijack_loss/forget_loss": lossF,
-                "hijack_train_loss": train_loss
+                "loss/retain_loss": loss.item(), 
+                "loss/forget_loss": lossF.item()
             }
 
-            # self.logger.log_metrics(metrics, step=step)
+            self.logger.log_metrics(metrics, step=step)
 
             optimizer.zero_grad()
             train_loss.backward(retain_graph=True)
             optimizer.step()
 
-        # hijacked_tokens.requires_grad_(False)
         print(metrics)
 
         return train_loss
