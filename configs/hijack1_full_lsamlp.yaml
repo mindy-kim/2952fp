@@ -28,3 +28,4 @@ train:
 hijack:
   steps: 5
   batch_sz: 256
+  num_batches: 10

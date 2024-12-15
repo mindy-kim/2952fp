@@ -4,9 +4,10 @@ import torch.nn.functional as F
 import numpy as np
 
 class Hijack(nn.Module):
-    def __init__(self, num_steps, batch_sz, lr):
+    def __init__(self, num_steps, batch_sz, num_batches, lr):
         super().__init__()
         self.model = None
+        self.num_batches = num_batches
         self.num_steps = num_steps
         self.batch_sz = batch_sz
         self.lr = lr
