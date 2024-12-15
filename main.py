@@ -90,9 +90,9 @@ if __name__ == '__main__':
         trainer.fit(model, train_dataloaders=dataloader)
         
         if "hijack" in cfg:
-            hijack_model = Hijack(model, cfg.hijack.steps, cfg.hijack.batch_sz, base_lr)
+            hijack_model = Hijack(cfg.hijack.steps, cfg.hijack.batch_sz, base_lr)
             print('hijack')
-            hijack_model.train(dataloader)
+            hijack_model.train(model, dataloader)
 
 
 

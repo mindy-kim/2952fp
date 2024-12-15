@@ -3,13 +3,14 @@ import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
 
-class Hijack():
-    def __init__(self, model, num_steps, batch_sz, lr):
+class Hijack(nn.Module):
+    def __init__(self, num_steps, batch_sz, lr):
         super().__init__()
-        self.model = model
+        self.model = None
         self.num_steps = num_steps
         self.batch_sz = batch_sz
         self.lr = lr
+        print('wtf')
         # self.logger = logger
 
     def forward(self, x, inds, tokens):
@@ -18,8 +19,9 @@ class Hijack():
         out = self.model.read_y(out)
         return out
     
-    def train(self, dataloader):
+    def train(self, model, dataloader):
         total_loss = 0
+        self.model = model
         print('start training')
 
         for batch_idx, batch in enumerate(dataloader):

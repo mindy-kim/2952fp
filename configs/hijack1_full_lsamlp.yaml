@@ -23,7 +23,7 @@ train:
   batch_sz: 256
   lr: 0.0005
   lightning_cfg:
-    max_epochs: 0
+    max_epochs: 1
     limit_train_batches: 100
 hijack:
   steps: 5
