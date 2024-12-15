@@ -70,7 +70,7 @@ if __name__ == '__main__':
     if "train" in cfg:
         bs, base_lr = cfg.train.batch_sz, cfg.train.lr
         model.learning_rate = base_lr
-        dataloader = DataLoader(data, batch_size=cfg.train.batch_sz)
+        dataloader = DataLoader(data, batch_size=cfg.train.batch_sz, num_workers = 8)
         lightning_cfg = cfg.train.lightning_cfg if 'lightning_cfg' in cfg.train else {}
         logger = TensorBoardLogger(save_dir=logdir)
         
@@ -86,9 +86,14 @@ if __name__ == '__main__':
             ],
             **lightning_cfg
         )
-
-        trainer.fit(model, train_dataloaders=dataloader)
         
+        try:
+            trainer.fit(model, train_dataloaders=dataloader)
+        except Exception as e:
+            print(f"Error during training: {e}")
+        
+        print('hijacking')
+
         if "hijack" in cfg:
             hijack_model = Hijack(cfg.hijack.steps, cfg.hijack.batch_sz, base_lr)
             print('hijack')
