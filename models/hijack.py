@@ -25,6 +25,7 @@ class Hijack(nn.Module):
         print('start training')
 
         for batch_idx, batch in enumerate(dataloader):
+            print('here?')
             total_loss += self.training_steps(batch)
 
             # self.logger.log("hijack_avg_loss", total_loss / (batch_idx + 1), on_step=False, on_epoch=True, prog_bar=True)
