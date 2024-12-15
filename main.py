@@ -87,12 +87,12 @@ if __name__ == '__main__':
             **lightning_cfg
         )
         
-        trainer.fit(model, train_dataloaders=data)
+        trainer.fit(model, train_dataloaders=dataloader)
 
         if "hijack" in cfg:
             hijack_model = Hijack(cfg.hijack.steps, cfg.hijack.batch_sz, base_lr)
             print('hijack')
-            hijack_model.train(model, dataloader)
+            hijack_model.train(model, data)
 
 
 
