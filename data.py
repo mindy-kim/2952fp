@@ -67,6 +67,7 @@ class MULData(Dataset):
         self.N, self.Nf, self.C = N, Nf, C
         self.Nx, self.Ny = Nx, Ny
         self.epsW = torch.zeros(Nf)
+        self.forgetThresh = forgetThresh / Nf
 
         # full dataset
         if N:
@@ -77,7 +78,7 @@ class MULData(Dataset):
         # initialize forget tasks
         self.weightsF = torch.randn((Nf, Ny, Nx))
         for i in range(Nf):
-            self.epsW[i] = empricalEps(self.weightsF[i], Nx, Ny, thresh=forgetThresh)
+            self.epsW[i] = empricalEps(self.weightsF[i], Nx, Ny, thresh=self.forgetThresh)
         dim = Nx * Ny
         self.EN = 1 / (2 ** (1 / 2) * factorial((dim + 1) / 2) / factorial(dim / 2)) # normalizing factor for generation
 

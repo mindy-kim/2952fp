@@ -19,6 +19,7 @@ data:
   params:
     C: 40
     Nf: 1
+    forgetThresh: 0.025
 train:
   experiment:
     name: unlearning
