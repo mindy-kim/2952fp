@@ -70,7 +70,7 @@ if __name__ == '__main__':
     if "train" in cfg:
         bs, base_lr = cfg.train.batch_sz, cfg.train.lr
         model.learning_rate = base_lr
-        dataloader = DataLoader(data, batch_size=cfg.train.batch_sz, num_workers = 8)
+        dataloader = DataLoader(data, batch_size=cfg.train.batch_sz)
         lightning_cfg = cfg.train.lightning_cfg if 'lightning_cfg' in cfg.train else {}
         logger = TensorBoardLogger(save_dir=logdir)
         
