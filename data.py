@@ -190,7 +190,7 @@ class HData(Dataset):
         while True:
             mask = torch.zeros((N,1,1))
             for i in range(self.Nf):
-                mask = torch.logical_or(F.norm(weights-self.weightsF[i], dim=(-2,-1), keepdim=True) < self.epsW, mask)
+                mask = torch.logical_or(F.norm(weights-self.weightsF[i], dim=(-2,-1), keepdim=True) < self.epsW[i], mask)
             
             if torch.any(mask):
                 weights = torch.where(mask, torch.randn((N, self.Ny, self.Nx)), weights)

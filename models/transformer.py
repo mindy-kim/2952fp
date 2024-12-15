@@ -71,7 +71,7 @@ class Transformer(pl.LightningModule):
             embsF = torch.cat([xsF, ysF * mask], dim=-1)
             predF = self.forward(embsF)
             y_predF = self.read_y(predF)
-            y_trueF = -ysF[:,-1,:]
+            y_trueF = torch.zeros_like(y_predF)#-ysF[:,-1,:]
             lossF = F.mse_loss(y_predF, y_trueF)
             # self.logger.experiment.add_scalars("losses", {"retain_loss": loss})
             # self.logger.experiment.add_scalars("losses", {"forget_loss": lossF})

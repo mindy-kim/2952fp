@@ -63,12 +63,11 @@ if __name__ == '__main__':
     model : Transformer = instantiate_from_config(cfg.model)
     if 'ckpt_path' in cfg.model:
         model = Transformer.load_from_checkpoint(cfg.model.ckpt_path, **cfg.model.params)
-        print(cfg.train, cfg.train.experiment)
         if 'experiment' in  cfg.train and cfg.train.experiment.name == "unlearning":
             model.set_lambda(cfg.train.experiment.params.lambda1, 
                              cfg.train.experiment.params.lambda2)
 
-    if cfg.train:
+    if "train" in cfg:
         bs, base_lr = cfg.train.batch_sz, cfg.train.lr
         model.learning_rate = base_lr
         dataloader = DataLoader(data, batch_size=cfg.train.batch_sz)
@@ -88,11 +87,10 @@ if __name__ == '__main__':
         )
 
         trainer.fit(model, train_dataloaders=dataloader)
-
-        if cfg.hijack:
+        
+        if "hijack" in cfg:
             hijack_model = Hijack(model, cfg.hijack.steps, cfg.hijack.batch_sz, base_lr)
             hijack_model.train(dataloader)
-
 
 
 
