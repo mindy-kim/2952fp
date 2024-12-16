@@ -30,4 +30,4 @@ hijack:
   steps: 100
   batch_sz: 256
   num_batches: 10
-  num_tokens: 1
+  num_tokens: 5

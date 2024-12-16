@@ -2,16 +2,22 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
+import os
+import matplotlib.pyplot as plt
+from itertools import cycle
+from collections import defaultdict
 
 class Hijack(nn.Module):
-    def __init__(self, num_steps, batch_sz, num_batches, lr, logger):
+    def __init__(self, num_steps, batch_sz, num_batches, lr, num_tokens=1):
         super().__init__()
         self.model = None
         self.num_batches = num_batches
         self.num_steps = num_steps
         self.batch_sz = batch_sz
         self.lr = lr
-        self.logger = logger
+        self.num_tokens = num_tokens
+        self.metrics = defaultdict(str)
+
         
     def forward(self, x, inds, tokens):
         x[:, inds, 1] = tokens
@@ -20,19 +26,18 @@ class Hijack(nn.Module):
         return out
     
     def train(self, model, dataset):
-        total_loss = 0
         self.model = model
+        self.metrics["loss/retain_loss"] = defaultdict(int)
+        self.metrics["loss/forget_loss"] = defaultdict(int)
+        # self.metrics["loss/total_loss"] = defaultdict(int)
 
-        for _ in range(self.num_steps):
+        for _ in range(self.num_batches):
             out_dict = {}
             out_dict['xs'], out_dict['ys'], out_dict['weights'] = dataset.sample_dr(self.batch_sz)
             out_dict['xsF'], out_dict['ysF'], out_dict['weightsF'] = dataset.sample_df(self.batch_sz)
-            total_loss += self.training_steps(out_dict)
-            break
+            self.training_steps(out_dict)
 
-            # self.logger.log("hijack_avg_loss", total_loss / (batch_idx + 1), on_step=False, on_epoch=True, prog_bar=True)
-
-        return total_loss / (self.batch_sz * self.num_steps)
+        return self.metrics
     
     def training_steps(self, batch):
         xs, ys, weights = batch['xs'], batch['ys'], batch['weights']
@@ -45,33 +50,32 @@ class Hijack(nn.Module):
         embs = torch.cat([xs, ys * mask], dim=-1)
         embsF = torch.cat([xsF, ysF * mask], dim=-1)
 
-        hijacked_inds = np.random.randint(low=0, high=embs.shape[1] - 1, size=(embs.shape[0],))
-        hijacked_tokens = torch.tensor(np.random.rand(embs.shape[0]), dtype=torch.float32)
+        hijacked_inds = np.array([np.random.choice(range(embs.shape[1] - 1), 
+                                                   size=self.num_tokens, 
+                                                   replace=False) for _ in range(embs.shape[0])])
+
+        # hijacked_inds = np.random.randint(low=0, high=embs.shape[1] - 1, size=(embs.shape[0], self.num_tokens))
+        hijacked_tokens = torch.tensor(np.random.rand(embs.shape[0], self.num_tokens, 2), dtype=torch.float32)
         hijacked_tokens.requires_grad = True
         optimizer = torch.optim.Adam([hijacked_tokens], lr=self.lr)
 
         for step in range(self.num_steps):
-            y_pred = self.forward(embs, hijacked_inds, hijacked_tokens)
+            y_pred = self.forward(embs, hijacked_inds, hijacked_tokens[:, :, 0])
             y_true = torch.zeros_like(ys[:, -1, :])
 
-            y_predF = self.forward(embsF, hijacked_inds, hijacked_tokens)
+            y_predF = self.forward(embsF, hijacked_inds, hijacked_tokens[:, :, 1])
             y_trueF = ysF[:,-1,:]
 
             loss = F.mse_loss(y_pred, y_true)
             lossF = F.mse_loss(y_predF, y_trueF)
             train_loss = self.model.lam1 * loss + self.model.lam2 * lossF
 
-            metrics = {
-                "loss/retain_loss": loss.item(), 
-                "loss/forget_loss": lossF.item()
-            }
-
-            self.logger.log_metrics(metrics, step=step)
+            self.metrics["loss/retain_loss"][step] += (loss.item() / self.num_batches)
+            self.metrics["loss/forget_loss"][step] += (lossF.item() / self.num_batches)
+            # self.metrics["loss/total_loss"][step] += (train_loss.item() / self.num_batches)
 
             optimizer.zero_grad()
             train_loss.backward(retain_graph=True)
             optimizer.step()
 
-        print(metrics)
-
-        return train_loss
+        print(train_loss.item())

@@ -3,6 +3,7 @@ from omegaconf import OmegaConf
 import argparse
 import datetime
 import os
+import pickle
 from utils.utils import instantiate_from_config
 
 from torch.utils.data import DataLoader
@@ -50,7 +51,8 @@ if __name__ == '__main__':
     data = instantiate_from_config(cfg.data)
     
     cfg_fname = os.path.splitext(os.path.split(args.config)[-1])[0]
-    nowname = now + "_" + cfg_fname
+    # nowname = now + "_" + cfg_fname
+    nowname = cfg_fname
     logdir = os.path.join(args.logdir, nowname)
     os.makedirs(logdir, exist_ok=True)
     
@@ -71,8 +73,20 @@ if __name__ == '__main__':
         lightning_cfg = cfg.train.lightning_cfg if 'lightning_cfg' in cfg.train else {}
         logger = TensorBoardLogger(save_dir=logdir)
         
+        # trainer = pl.Trainer(
+        #     callbacks=[
+        #         logger=logger
+        #         ModelCheckpoint(
+        #             dirpath=os.path.join(ckptdir, 'trainstep_checkpoints'),
+        #             verbose=True,
+        #             every_n_epochs=5,
+        #             save_weights_only=True
+        #         )
+        #     ],
+        #     **lightning_cfg
+        # )
+
         trainer = pl.Trainer(
-            logger=logger,
             callbacks=[
                 ModelCheckpoint(
                     dirpath=os.path.join(ckptdir, 'trainstep_checkpoints'),
@@ -83,25 +97,20 @@ if __name__ == '__main__':
             ],
             **lightning_cfg
         )
-
-        # trainer = pl.Trainer(
-        #     callbacks=[
-        #         ModelCheckpoint(
-        #             dirpath=os.path.join(ckptdir, 'trainstep_checkpoints'),
-        #             verbose=True,
-        #             every_n_epochs=5,
-        #             save_weights_only=True
-        #         )
-        #     ],
-        #     **lightning_cfg
-        # )
         
         trainer.fit(model, train_dataloaders=dataloader)
 
+        print('hijack')
+
         if "hijack" in cfg:
-            hijack_model = Hijack(cfg.hijack.steps, cfg.hijack.batch_sz, cfg.hijack.num_batches, cfg.hijack.lr, logger)
             print('hijack')
+            hijack_model = Hijack(cfg.hijack.steps, cfg.hijack.batch_sz, cfg.hijack.num_batches, cfg.hijack.lr, cfg.hijack.num_tokens)
             hijack_model.train(model, data)
+
+            filepath = os.path.join(logdir, f'metrics{cfg.hijack.num_tokens}.pkl')
+
+            with open(filepath, 'wb') as file:
+                pickle.dump(hijack_model.metrics, file)
 
 
 

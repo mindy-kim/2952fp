@@ -13,7 +13,7 @@ data:
   target: data.MULData
   params:
     C: 40
-    Nf: 1
+    Nf: 2
 train:
   experiment:
     name: "unlearning"

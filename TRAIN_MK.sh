@@ -34,3 +34,10 @@ source activate cs2952
 # pip install omegaconf
 # pip install pytorch_lightning
 python main.py -c configs/hijack1_full_lsamlp.yaml
+python main.py -c configs/hijack2_full_lsamlp.yaml
+python main.py -c configs/hijack4_full_lsamlp.yaml
+python main.py -c configs/hijack8_full_lsamlp.yaml
+
+# python main.py -c configs/hijack1_5_full_lsamlp.yaml
+# python main.py -c configs/hijack1_10_full_lsamlp.yaml
+# python main.py -c configs/hijack1_20_full_lsamlp.yaml
