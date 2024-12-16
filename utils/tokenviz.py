@@ -21,10 +21,10 @@ def plot_retain_loss(data_points, output_path=None):
     plt.figure(figsize=(6, 4))
     
     # Set minimalist black style
-    plt.style.use('seaborn-whitegrid')
+    plt.style.use('seaborn-v0_8-whitegrid')
     plt.plot(num_tokens, retain_loss, marker='o', color='blue', label=f'Retain Loss', linewidth=1.5)
     plt.plot(num_tokens, forget_loss, marker='o', color='red', label=f'Forget Loss', linewidth=1.5)
-    plt.plot(num_tokens, [0.212, 0.212, 0.212, 0.212], linestyle='--', color='black', linewidth=1.5)
+    # plt.plot(num_tokens, [0.212, 0.212, 0.212, 0.212], linestyle='--', color='black', linewidth=1.5)
     
     plt.legend(title=r'Adversarial Loss', fontsize=10, loc='upper left')
 
@@ -35,7 +35,7 @@ def plot_retain_loss(data_points, output_path=None):
     plt.xlabel(r'Number of Tokens', fontsize=12)
     plt.ylabel(r'Loss', fontsize=12)
     
-    plt.ylim(0, max(retain_loss) * 1.1)  # Add some padding at the top for clarity
+    plt.ylim(0, max(retain_loss + forget_loss) * 1.1)  # Add some padding at the top for clarity
 
     # Remove top and right spines
     ax = plt.gca()
@@ -56,10 +56,10 @@ def plot_retain_loss(data_points, output_path=None):
 def main():
     # Example manually provided data points
     data_points = [
-        (1, 2.899),
-        (5, 2.427),
-        (10, 2.207),
-        (15, 2.223),
+        (1, 1.885, 3.697),
+        (5, 3.161, 4.005),
+        (10, 1.903, 5.972),
+        (15, 3.038, 0.711),
     ]
     
     output_path = 'hijack_token.png'  # Set to None to display the plot instead
@@ -67,13 +67,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-
-
-    data_points = [
-        (1, 2.899, ),
-        (5, 2.427, ),
-        (10, 2.207, ),
-        (15, 2.223, ),
-    ]
