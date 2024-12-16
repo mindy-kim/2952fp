@@ -27,6 +27,7 @@ def extract_data(logdir, filepath, metrics):
         data[metric] = [(step, value) for step, value in data[metric].items()]
 
     print(data['loss/retain_loss'][-1])
+    print(data['loss/forget_loss'][-1])
 
     return data
 

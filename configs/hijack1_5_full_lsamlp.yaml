@@ -29,5 +29,5 @@ hijack:
   lr: 0.01
   steps: 100
   batch_sz: 256
-  num_batches: 10
+  num_batches: 50
   num_tokens: 5

@@ -16,21 +16,24 @@ def plot_retain_loss(data_points, output_path=None):
         data_points (list of tuples): List of (num_forget_tasks, retain_loss) pairs.
         output_path (str, optional): Path to save the plot. If None, the plot is displayed.
     """
-    num_tokens, retain_loss = zip(*data_points)
+    num_tokens, retain_loss, forget_loss = zip(*data_points)
 
     plt.figure(figsize=(6, 4))
     
     # Set minimalist black style
     plt.style.use('seaborn-whitegrid')
-    plt.plot(num_tokens, retain_loss, marker='o', color='black', linewidth=1.5)
+    plt.plot(num_tokens, retain_loss, marker='o', color='blue', label=f'Retain Loss', linewidth=1.5)
+    plt.plot(num_tokens, forget_loss, marker='o', color='red', label=f'Forget Loss', linewidth=1.5)
     plt.plot(num_tokens, [0.212, 0.212, 0.212, 0.212], linestyle='--', color='black', linewidth=1.5)
     
+    plt.legend(title=r'Adversarial Loss', fontsize=10, loc='upper left')
+
     # Title
-    plt.title('Retain Loss vs No. of Tokens Tradeoff', fontsize=14)
+    plt.title('Adversarial Loss vs No. of Tokens Tradeoff', fontsize=14)
     
     # Labeling
     plt.xlabel(r'Number of Tokens', fontsize=12)
-    plt.ylabel(r'Retain Loss', fontsize=12)
+    plt.ylabel(r'Loss', fontsize=12)
     
     plt.ylim(0, max(retain_loss) * 1.1)  # Add some padding at the top for clarity
 
@@ -69,8 +72,8 @@ if __name__ == "__main__":
 
 
     data_points = [
-        (1, 2.899),
-        (5, 2.427),
-        (10, 2.207),
-        (15, 2.223),
+        (1, 2.899, ),
+        (5, 2.427, ),
+        (10, 2.207, ),
+        (15, 2.223, ),
     ]
