@@ -23,7 +23,7 @@ def plot_retain_loss(data_points, output_path=None):
     # Set minimalist black style
     plt.style.use('seaborn-whitegrid')
     plt.plot(num_tokens, retain_loss, marker='o', color='black', linewidth=1.5)
-    plt.plot(num_tokens, 0.212, marker='o', linestyle='--', color='black', linewidth=1.5)
+    plt.plot(num_tokens, [0.212, 0.212, 0.212, 0.212], linestyle='--', color='black', linewidth=1.5)
     
     # Title
     plt.title('Retain Loss vs No. of Tokens Tradeoff', fontsize=14)
