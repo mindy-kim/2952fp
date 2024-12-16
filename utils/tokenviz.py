@@ -56,10 +56,10 @@ def plot_retain_loss(data_points, output_path=None):
 def main():
     # Example manually provided data points
     data_points = [
-        (1, 1.885, 3.697),
-        (5, 3.161, 4.005),
-        (10, 1.903, 5.972),
-        (15, 3.038, 0.711),
+        (1, 3.326, 3.370),
+        (5, 1.909, 8.321),
+        (10, 1.895, 4.513),
+        (20, 2.792, 2.269),
     ]
     
     output_path = 'hijack_token.png'  # Set to None to display the plot instead
