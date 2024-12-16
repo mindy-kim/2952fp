@@ -16,12 +16,12 @@ def plot_loss(data_points, output_path=None):
         data_points (list of tuples): List of (num_forget_tasks, retain_loss) pairs.
         output_path (str, optional): Path to save the plot. If None, the plot is displayed.
     """
-    num_tokens, retain_loss, forget_loss = zip(*data_points)
+    num_tokens, forget_loss = zip(*data_points)
 
     plt.figure(figsize=(6, 4))
     
     # Set minimalist black style
-    plt.style.use('seaborn-whitegrid')
+    plt.style.use('seaborn-v0_8-whitegrid')
     plt.plot(num_tokens, forget_loss, marker='o', color='red', label=f'Forget Loss', linewidth=1.5)
 
     # Title
@@ -31,7 +31,7 @@ def plot_loss(data_points, output_path=None):
     plt.xlabel(r'Number of Forget Tasks', fontsize=12)
     plt.ylabel(r'Loss', fontsize=12)
     
-    plt.ylim(0, max(retain_loss) * 1.1)  # Add some padding at the top for clarity
+    plt.ylim(0, max(forget_loss) * 1.1)  # Add some padding at the top for clarity
 
     # Remove top and right spines
     ax = plt.gca()
