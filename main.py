@@ -71,20 +71,8 @@ if __name__ == '__main__':
         lightning_cfg = cfg.train.lightning_cfg if 'lightning_cfg' in cfg.train else {}
         logger = TensorBoardLogger(save_dir=logdir)
         
-        # trainer = pl.Trainer(
-        #     callbacks=[
-        #         logger=logger
-        #         ModelCheckpoint(
-        #             dirpath=os.path.join(ckptdir, 'trainstep_checkpoints'),
-        #             verbose=True,
-        #             every_n_epochs=5,
-        #             save_weights_only=True
-        #         )
-        #     ],
-        #     **lightning_cfg
-        # )
-
         trainer = pl.Trainer(
+            logger=logger,
             callbacks=[
                 ModelCheckpoint(
                     dirpath=os.path.join(ckptdir, 'trainstep_checkpoints'),
@@ -95,6 +83,18 @@ if __name__ == '__main__':
             ],
             **lightning_cfg
         )
+
+        # trainer = pl.Trainer(
+        #     callbacks=[
+        #         ModelCheckpoint(
+        #             dirpath=os.path.join(ckptdir, 'trainstep_checkpoints'),
+        #             verbose=True,
+        #             every_n_epochs=5,
+        #             save_weights_only=True
+        #         )
+        #     ],
+        #     **lightning_cfg
+        # )
         
         trainer.fit(model, train_dataloaders=dataloader)
 
